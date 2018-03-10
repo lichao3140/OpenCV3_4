@@ -34,7 +34,7 @@ extern "C" {
         cvtColor(mRgb, gray, COLOR_BGR2GRAY);
         vector<Rect> faces;
         LOGD("This is a number from JNI: %d", flag * 2);
-        face_detector.detectMultiScale(gray, faces, 1.1, 1, 0, Size(50, 50), Size(300, 300));
+        face_detector.detectMultiScale(gray, faces, 1.1, 2, 0, Size(50, 50), Size(300, 300));
         LOGD("This is a number from JNI: %d", flag * 3);
         if(faces.empty()) return;
         for (int i = 0; i < faces.size(); i++) {

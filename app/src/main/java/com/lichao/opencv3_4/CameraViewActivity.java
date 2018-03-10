@@ -85,7 +85,7 @@ public class CameraViewActivity extends AppCompatActivity implements CameraBridg
         File cascadeDir = this.getDir("cascade", Context.MODE_PRIVATE);
         File file = new File(cascadeDir.getAbsolutePath() + "haarcascade_frontalface_alt_tree.xml");
         FileOutputStream outputStream = new FileOutputStream(file);
-        byte[] buff = new byte[1024];
+        byte[] buff = new byte[4096];
         int len = 0;
         while ((len = inputStream.read(buff)) != -1) {
             outputStream.write(buff, 0, len);
