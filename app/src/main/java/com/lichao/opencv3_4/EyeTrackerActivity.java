@@ -17,6 +17,7 @@ import org.opencv.android.JavaCameraView;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
@@ -26,7 +27,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 public class EyeTrackerActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2{
     private static String TAG = "lichao";
@@ -106,6 +106,7 @@ public class EyeTrackerActivity extends AppCompatActivity implements CameraBridg
     }
 
     private void process(Mat frame) {
+        if (option < 1) return;
         if (mAbsolutionFaceSize == 0) {
             int height = frame.rows();
             if (Math.round(height * mRelativeFaceSize) > 0) {
@@ -118,28 +119,41 @@ public class EyeTrackerActivity extends AppCompatActivity implements CameraBridg
         Imgproc.equalizeHist(gray, gray);
         MatOfRect faces = new MatOfRect();
         mNativeDetector.detect(gray, faces);
-        List<Rect> faceList = faces.toList();
-        if (faceList.size() > 0) {
-            for (Rect rect : faceList) {
+        Rect[] faceList = faces.toArray();
+        if (faceList.length > 0) {
+            for (int i = 0; i < faceList.length; i++) {
                 // 矩形绘制
-                Imgproc.rectangle(frame, rect.tl(), rect.br(), new Scalar(255, 0, 0), 2, 8, 0);
+                Imgproc.rectangle(frame, faceList[i].tl(), faceList[i].br(), new Scalar(255, 0, 0), 2, 8, 0);
+                findEyeArea(faceList[i], frame);
             }
         }
         faces.release();
+    }
 
-        if (option == 1) { // 摄像头预览
+    /**
+     * 寻找眼睛区域
+     * @param faceROI
+     * @param frame
+     */
+    private void findEyeArea(Rect faceROI, Mat frame) {
+        if (option < 2) return;
+        int offY = (int) (faceROI.height * 0.35f);
+        int offX = (int) (faceROI.width * 0.15f);
+        int sh = (int) (faceROI.height * 0.18f);
+        int sw = (int) (faceROI.width * 0.32f);
+        int gap = (int) (faceROI.width * 0.025f);
+        Point lp_eye = new Point(faceROI.tl().x + offX, faceROI.tl().y + offY);//左眼开始
+        Point lp_end = new Point(lp_eye.x + sw - gap, lp_eye.y + sh);//左眼结束
 
-        } else if (option == 2) { // 人脸检测
+        int right_offX = (int) (faceROI.width * 0.095f);
+        int rew = (int) (sw * 0.81f);
+        Point rp_eye = new Point(faceROI.tl().x + faceROI.width/2 + right_offX, faceROI.tl().y + offY);//右眼开始
+        Point rp_end = new Point(rp_eye.x + rew, rp_eye.y + sh);//右眼结束
 
-        } else if (option == 3) { // 眼睛区域
+        //绘制左右眼睛矩正
+        Imgproc.rectangle(frame, lp_eye, lp_end, new Scalar(0, 0, 255), 2);
+        Imgproc.rectangle(frame, rp_eye, rp_end, new Scalar(0, 0, 255), 2);
 
-        } else if (option == 4) { // 眼球
-
-        } else if (option == 5) { // 渲染
-
-        } else {
-            // do nothing
-        }
     }
 
     @Override
