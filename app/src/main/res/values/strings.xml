@@ -5,4 +5,9 @@
     <string name="sobel">梯度</string>
     <string name="boxblur">模糊</string>
     <string name="face">人脸检测</string>
+    <string name="preview">摄像头预览</string>
+    <string name="facedetector">人脸检测</string>
+    <string name="eyearea">眼睛区域</string>
+    <string name="eya_ball">眼球</string>
+    <string name="eye_render">渲染</string>
 </resources>

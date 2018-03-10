@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/preview" android:title="@string/preview"></item>
+    <item android:id="@+id/facedetector" android:title="@string/facedetector"></item>
+    <item android:id="@+id/eyearea" android:title="@string/eyearea"></item>
+    <item android:id="@+id/eya_ball" android:title="@string/eya_ball"></item>
+    <item android:id="@+id/eye_render" android:title="@string/eye_render"></item>
+</menu>

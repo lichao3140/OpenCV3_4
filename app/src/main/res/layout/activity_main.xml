@@ -10,7 +10,7 @@
         android:id="@+id/bt_gray"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="gray"
+        android:text="灰度"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -20,9 +20,17 @@
         android:id="@+id/bt_camera"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/imageView"
         android:layout_alignParentTop="true"
-        android:text="Camera" />
+        android:layout_toEndOf="@+id/bt_gray"
+        android:text="视频采集" />
+
+    <Button
+        android:id="@+id/bt_eye_camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/bt_camera"
+        android:text="眼球渲染" />
 
     <ImageView
         android:id="@+id/imageView"

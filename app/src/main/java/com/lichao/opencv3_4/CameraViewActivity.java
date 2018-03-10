@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceView;
@@ -19,19 +20,26 @@ import org.opencv.android.JavaCameraView;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfFloat;
+import org.opencv.core.MatOfRect;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public class CameraViewActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2,
         RadioGroup.OnCheckedChangeListener, View.OnClickListener {
     private static String TAG = "lichao";
     private static int cameraIndex = 1;
     private int option = 0;
+    private CascadeClassifier face_detector;//使用SDK进行人脸检测
 
     private JavaCameraView javaCameraView;
     private RadioGroup radioGroup;
@@ -69,10 +77,10 @@ public class CameraViewActivity extends AppCompatActivity implements CameraBridg
     }
 
     /**
-     * 初始化人脸数据
+     * 初始化人脸级联分类器
      */
     private void initFaceDetectorData() throws IOException {
-        System.loadLibrary("face_detection");
+        //lbpcascade_frontalface  haarcascade_frontalface_alt_tree
         InputStream inputStream = getResources().openRawResource(R.raw.haarcascade_frontalface_alt_tree);
         File cascadeDir = this.getDir("cascade", Context.MODE_PRIVATE);
         File file = new File(cascadeDir.getAbsolutePath() + "haarcascade_frontalface_alt_tree.xml");
@@ -85,9 +93,33 @@ public class CameraViewActivity extends AppCompatActivity implements CameraBridg
         inputStream.close();
         outputStream.close();
 
+        //SDK方法，效率比NDK低
+        //face_detector = new CascadeClassifier(file.getAbsolutePath());
+        //NDK方法
         initLoad(file.getAbsolutePath());
         file.delete();
         cascadeDir.delete();
+    }
+
+    /**
+     * SDK方法人脸检测
+     * @param frame
+     */
+    private void detectFace(Mat frame) {
+        Mat gray = new Mat();
+        Imgproc.cvtColor(frame, gray, Imgproc.COLOR_RGBA2GRAY);
+        Imgproc.equalizeHist(gray, gray);
+        MatOfRect faces = new MatOfRect();
+        face_detector.detectMultiScale(gray, faces, 1.1, 1, 0, new Size(30, 30), new Size(300, 300));//级联检测
+        List<Rect> faceList = faces.toList();
+        if (faceList.size() > 0) {
+            for (Rect rect : faceList) {
+                // 矩形绘制
+                Imgproc.rectangle(frame, rect.tl(), rect.br(), new Scalar(255, 0, 0), 2, 8, 0);
+            }
+        }
+        gray.release();
+        faces.release();
     }
 
     @Override
@@ -130,8 +162,11 @@ public class CameraViewActivity extends AppCompatActivity implements CameraBridg
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         //彩色rgba()  灰度 gray
         Mat frame = inputFrame.rgba();
+        if (cameraIndex == 1) {
+            Core.flip(frame, frame, 1);//前置摄像头防止视频画面左右颠倒
+        }
         if (this.getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-            Core.rotate(frame, frame, Core.ROTATE_90_COUNTERCLOCKWISE);//逆时针90度旋转
+            Core.rotate(frame, frame, Core.ROTATE_90_CLOCKWISE);//逆时针90度旋转
         }
         process(frame);
         return frame;
@@ -167,7 +202,10 @@ public class CameraViewActivity extends AppCompatActivity implements CameraBridg
             //释放内存
             temp.release();
         } else if (option == 5) { // 人脸检测
+            //NDK方法
             faceDetect(frame.getNativeObjAddr());
+            //SDK方法
+            //detectFace(frame);
         } else {
             // do nothing
         }
@@ -236,7 +274,15 @@ public class CameraViewActivity extends AppCompatActivity implements CameraBridg
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * 加载人脸数据文件
+     * @param haarFilePath
+     */
     public native void initLoad(String haarFilePath);
 
+    /**
+     * 人脸检测
+     * @param address
+     */
     public native void faceDetect(long address);
 }

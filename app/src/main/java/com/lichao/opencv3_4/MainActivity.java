@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static String TAG = "lichao";
     private Button gray;
     private Button camera;
+    private Button eyeCamera;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,8 +31,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         gray = findViewById(R.id.bt_gray);
         camera = findViewById(R.id.bt_camera);
+        eyeCamera = findViewById(R.id.bt_eye_camera);
         gray.setOnClickListener(this);
         camera.setOnClickListener(this);
+        eyeCamera.setOnClickListener(this);
     }
 
     /**
@@ -42,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (load) {
             Log.i(TAG, "Open CV Libraries loaded...");
         }
+        System.loadLibrary("face_detection");
     }
 
     @Override
@@ -52,6 +56,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.bt_camera:
                 startActivity(new Intent(MainActivity.this, CameraViewActivity.class));
+                break;
+            case R.id.bt_eye_camera:
+                startActivity(new Intent(MainActivity.this, EyeTrackerActivity.class));
                 break;
             default:
                 break;

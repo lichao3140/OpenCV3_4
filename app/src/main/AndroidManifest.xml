@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-feature android:name="android.hardware.Camera" />
     <uses-feature android:name="android.hardware.Camera.autoFocus" />
     <uses-feature android:name="android.hardware.Camera.flash" />
@@ -23,7 +24,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".CameraViewActivity"></activity>
+        <activity android:name=".CameraViewActivity" />
+        <activity android:name=".EyeTrackerActivity"></activity>
     </application>
 
 </manifest>
